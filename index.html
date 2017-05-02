@@ -1,0 +1,180 @@
+<html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="libs/bootstrap-3.3.css"></link>
+  <script type="text/javascript" src="libs/angular-1.4.js"></script>
+  <script type="text/javascript" src="libs/angular-animate-1.4.14.js"></script>
+  <script type="text/javascript" src="libs/angular-sanitize-1.4.14.js"></script>
+
+  <script type="text/javascript" src="libs/ui-bootstrap-tpls-2.5.0.min.js"></script>
+  <script type="text/javascript" src="Json2TableModule.js"></script>
+  <script type="text/javascript" src="Json2TableController.js"></script>
+  <script type="text/javascript" src="Json2TableService.js"></script>
+  <script type="text/javascript" src="keyValueTableDir.js"></script>
+  <script type="text/javascript" src="genericArrayDir.js"></script>
+  <script type="text/javascript" src="genericObjectDir.js"></script>
+
+  <style>
+    .scrollable-content {
+      padding: .5em 1em;
+      position: absolute;
+      margin-top: 1.7em;
+      top: 1em;
+      right: 0;
+      bottom: 30px;
+      left: 1em;
+      padding-right: 1em;
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <div ng-app="Json2TableModule">
+
+    <div ng-controller="Json2TableController" class="widget scrollable-content">
+
+      <!--Generics-->
+      <div ng-repeat="(key,valuesLevel1) in operations">
+        <label ng-bind="key"></label>
+
+        <!-- 1ST LEVEL-->
+        <key-value-table key="key" value="valuesLevel1"></key-value-table>
+
+        <div ng-if="checkObject(valuesLevel1)" ng-repeat="(key,value) in valuesLevel1">
+          <label ng-bind="key"></label>
+        </div>
+
+
+
+        <div ng-if="checkArray(valuesLevel1)" ng-repeat="level1 in valuesLevel1">
+          <div ng-repeat="(key,valuesLevel2) in level1">
+            <label>&nbsp;&nbsp;{{key}}</label>
+            <!--Events-->
+
+
+            <!-- 2nd LEVEL-->
+            <key-value-table key="key" value="valuesLevel2"></key-value-table>
+
+            <div ng-if="checkObject(valuesLevel2)" ng-repeat="(key,objLevel2) in valuesLevel2">
+
+              <!-- subOperationName:event RegisterAddress:0083-->
+              <key-value-table key="key" value="objLevel2"></key-value-table>
+
+              <div ng-if="checkObject(objLevel2)" ng-repeat="(key,valueLevel2) in objLevel2 track by $index">
+                <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{key}}:{{objLevel2}}</label>
+              </div>
+
+              <!--GetEvents-->
+              <!-- <div ng-if="checkArray(objLevel2)" ng-repeat="level2 in objLevel2 track by $index">
+                <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{key}}</label>
+                <div ng-repeat="(key,valuesLevel3) in level2">
+                   <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{key}}:{{valuesLevel3}}</label>
+                </div>
+              </div>-->
+              <generic-array key="key" array-to-check="objLevel2"></generic-array>
+            </div>
+
+            <div ng-if="checkArray(valuesLevel2)" ng-repeat="level2 in valuesLevel2">
+              <div ng-repeat="(key,valuesLevel3) in level2">
+                <label>&nbsp;&nbsp;{{key}}</label>
+
+
+
+                <!-- 3rd LEVEL-->
+                <key-value-table key="key" value="valuesLevel3"></key-value-table>
+
+                <div ng-if="checkObject(valuesLevel3)" ng-repeat="(key,value) in valuesLevel3">
+                  <label>&nbsp;&nbsp;&nbsp;{{key}}</label>
+
+                </div>
+
+                <div ng-if="checkArray(valuesLevel3)" ng-repeat="level3 in valuesLevel3">
+                  <div ng-repeat="(key,valuesLevel4) in level3">
+                    <label>&nbsp;&nbsp;{{key}}</label>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+
+
+          </div>
+
+
+
+          <!-- <uib-accordion close-others="oneAtATime">
+            <div uib-accordion-group class="panel-primary">
+              <uib-accordion-heading is-open="status.open">
+                <b>OPERATION :</b> <label ng-bind="op.OperationName"></label><i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
+              </uib-accordion-heading>
+
+
+             
+              <div ng-repeat="(key,subOp) in op.SubOperation">
+                <uib-accordion close-others="oneAtATimeSubOp">
+                  <div uib-accordion-group class="panel-default">
+                    <uib-accordion-heading is-open="status.openSubOp">
+                      <b>SUBOPERATION :</b> <label ng-bind="subOp.SubOperationName"></label><i class="pull-right glyphicon"
+                        ng-class="{'glyphicon-chevron-down': status.openSubOp, 'glyphicon-chevron-right': !status.openSubOp}"></i>
+                    </uib-accordion-heading>
+                    <div ng-repeat="(key,subOpOutputArray) in  subOp">
+                      
+                      <div ng-if="checkString(subOpOutputArray) && key!=='SubOperationName'">
+                        <b>COMMON DATA:</b> <label>{{key}}: </label><label ng-bind="subOpOutputArray"></label>
+                        &nbsp;</br>
+                      </div>
+
+                      <div ng-repeat="subOpOutput in subOpOutputArray track by $index">
+	
+                        <div ng-if="!checkString(subOpOutput)">
+                          <div class="panel-group" id="accordion" ng-click="isNotOpen = !isNotOpen">
+                            <div class="panel panel-default">
+                              <div class="panel-heading">
+                                <h4 class="panel-title">
+                                  <a class="accordion-toggle" data-parent="#accordion" href="#pannello-1"><label>{{key}} {{$index+1}}</label></a>
+                                </h4>
+                              </div>
+                              <div class="panel-collapse collapse" id="panel-collapse-id" uib-collapse="isNotOpen">
+                                <div class="panel-body">
+                                  <div class="row">
+								   
+										<span class="col-md-offset-1 col-xs-2 col-md-2 col-sm-2" ng-repeat="(key,value) in subOpOutput">
+											 <label ng-bind="key"></label>:<label ng-bind="value"></label>
+										</span>
+								   
+                                  </div>
+                                </div>
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+
+
+                      </div>
+
+                    </div>
+                </uib-accordion>
+                </div>-->
+          <!-- end ng-repeat="subOperation in subOperations">-->
+
+
+          <!-- end panel for each operation-->
+
+
+        </div>
+
+
+
+        <div>&nbsp;</div>
+      </div>
+    </div>
+    </uib-accordion>
+  </div>
+
+  </div>
+
+</body>

@@ -1,0 +1,1 @@
+angular.module("Json2TableModule",['ngAnimate', 'ngSanitize', 'ui.bootstrap']);
